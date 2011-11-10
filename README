@@ -1,1 +1,1 @@
-Baseball é um projeto de aplicação interativa usando wiimote.
+Baseball é um projeto de aplicação interativa usando wiimote. Usando a biblioteca cwiid, um socket é criado para receber a conexão de um cliente flash, que recebe a informação quando um golpe é detectado na leitura dos acelerômetros.
