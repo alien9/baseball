@@ -23,13 +23,20 @@ D=0.2
 DELAY=20
 DAC=40
 
-SPRAY = [25,  80]
+SPRAY = [5,  80]
 DISTA = [190, 214]
-xt=840.0
-yt=630.0
+xt=800.0
+yt=600.0
 
 xp=xt/X
 yp=yt/Y
+def zangle(n):
+    zu = (n-95) / 25.0 - 1
+    if zu > 1: 
+        zu=1
+    if zu < -1 :
+        zu = -1
+    return zu
 
 def mtest(p):
     return not not p
@@ -50,70 +57,69 @@ def sortof(p) :
 def sortx(p) :
     p=sorted(p, key=lambda point: point['pos'][0])
     return p   
-print 'Press 1+2 on your Wiimote now...'
+print 'Conecte Wii...'
 wm = cwiid.Wiimote()
 barulho.toca(sta)
-wm.rpt_mode = cwiid.RPT_BTN | cwiid.RPT_ACC | cwiid.RPT_IR
+wm.rpt_mode = cwiid.RPT_BTN | cwiid.RPT_ACC | cwiid.RPT_IR | cwiid.RPT_MOTIONPLUS
+
 i=0;
 top = Tkinter.Tk()
 
 things=[]
 def runner(tela, wii):
+    pitch=0
+    roll=0
+
     while wii:
-        time.sleep(0.01)
-        ps = sortof(filter(mtest,  wii.state['ir_src']))
+        #print math.atan(wii.state['acc'][1] / 50.0)
+        #print math.asin((wii.state['acc'][1]-100) / 50.0)
+        #time.sleep(0.01)
+        ps = filter(mtest,  wii.state['ir_src'])
         dist=0
         du=0
         mid=[]
         if wii.state['buttons'] & 2048 :
-            if len(ps)>2 :
+            if len(ps)>1 :
                 du=pow(pow(ps[1]['pos'][0]-ps[0]['pos'][0], 2)+pow(ps[1]['pos'][1]-ps[0]['pos'][1], 2), 0.5)
                 DISTA[1]=int(du)
+                pitch=math.asin(zangle(wii.state['acc'][1]))
+                roll=math.asin(zangle(wii.state['acc'][0]))
                 print "distancia mínima"
                 print DISTA
         if wii.state['buttons'] & 1024 :
-            if len(ps)>2 :
+            if len(ps)>1 :
                 du=pow(pow(ps[1]['pos'][0]-ps[0]['pos'][0], 2)+pow(ps[1]['pos'][1]-ps[0]['pos'][1], 2), 0.5)
                 DISTA[0]=int(du)
                 print "distancia máxima"
                 print DISTA
         if wii.state['buttons'] & 4 :
-            if len(ps)>2 :
+            if len(ps)>1 :
                 du=pow(pow(ps[1]['pos'][0]-ps[0]['pos'][0], 2)+pow(ps[1]['pos'][1]-ps[0]['pos'][1], 2), 0.5)
                 dist=int(sprawl(du))
-                po=sortx([ps[0],ps[1]])
-                #print po
-                if po[1]['pos'][0] != po[0]['pos'][0] :
-                    m=1.0*(po[1]['pos'][1]-po[0]['pos'][1])/(po[1]['pos'][0]-po[0]['pos'][0])
-                    
-                    #print m
-                    if m != 0.0 : 
-                    #    #refazer isto
-                        xx=xt*( ps[2]['pos'][0]/m + ps[2]['pos'][1] - po[0]['pos'][1] + m*po[0]['pos'][0] )/(m+1/m)
-                    else :
-                        xx=xt*(ps[2]['pos'][0]-po[0]['pos'][0])/(po[1]['pos'][0]-po[0]['pos'][0])
-                    #mid = [ (ps[1]['pos'][0]+ps[0]['pos'][0]) / 2.0, (ps[1]['pos'][1]+ps[0]['pos'][1]) / 2.0 ]
-                    
-                    print xx
-                    mid = [ xx, (ps[1]['pos'][1]+ps[0]['pos'][1]) / 2.0 ]
-            #else :
-            #    if len(ps)>0 :
-            #        if ps[0]['pos'][0] > X/2 :
-            #            mid = [ ps[0]['pos'][0]+du/2.0, (ps[0]['pos'][1]+ps[0]['pos'][1]) / 2.0 ]
-            #        else :
-            #            mid = [ ps[0]['pos'][0]-du/2.0, (ps[0]['pos'][1]+ps[0]['pos'][1]) / 2.0 ]
-            if len(mid) > 1 and dist > 0:
+                xo=(ps[0]['pos'][0]+ps[1]['pos'][0]) / 2.0 - 512
+                yo=384 - (ps[0]['pos'][1]+ps[1]['pos'][1]) / 2.0
+                print xo
+                print yo
+                if ps[1]['pos'][0] != ps[0]['pos'][0] :
+                    teta=1 * math.atan(1.0 * (ps[1]['pos'][1] - ps[0]['pos'][1] )/(ps[1]['pos'][0] - ps[0]['pos'][0] ))
+                else :
+                    teta = math.pi / 2.0
+                print teta
+                x=xp * (512 + xo * math.cos(teta) - yo * math.sin(teta) )
+                y=yp * (384 + xo * math.sin(teta) + yo * math.cos(teta) )
+                #print x
+                #print y
+                #y = y - math.sin(math.asin(zangle(wii.state['acc'][1]))-pitch) * yt * 2
+                #y = y - math.sin(math.asin(zangle(wii.state['acc'][0]))-roll) * yt * 2
+                #x = x - math.sin(math.asin(zangle(wii.state['acc'][0]))-roll) * xt * 2
+               
                 gradient=ims[dist]
                 #print mid
-                pos={'x':round(xt-xp*(mid[0]+dist/2.0)), 'y':round(yp*(mid[1]+dist/2.0))}
-                tela.create_image(pos['x'], pos['y'], image=gradient)
-                #if (not not ant) and (dist > 0):
-                #    di = distancia(pos, ant) / dist
-                #    print di
-                    #pasx=1.0 * (pos['x']-ant['x']) / di
-                    #pasy=1.0 * (pos['y']-ant['y']) / di
+                #pos={'x':round(xt-xp*(mid[0]+dist/2.0)), 'y':round(yp*(mid[1]+dist/2.0))}
+                tela.create_image(xt-x, yt-y, image=gradient)
+
                     
-                ant={'x':pos['x'], 'y':pos['y']}
+                #ant={'x':pos['x'], 'y':pos['y']}
         else :
             ant=None
         if wii.state['buttons'] & 1 :
