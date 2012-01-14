@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/python
 # coding=UTF8
 
 import math
@@ -22,6 +22,7 @@ A=60/360.0*2*math.pi #angulo da lente
 D=0.2
 DELAY=20
 DAC=40
+wm=None
 
 SPRAY = [5,  80]
 DISTA = [190, 214]
@@ -56,83 +57,81 @@ def sortof(p) :
     return p
 def sortx(p) :
     p=sorted(p, key=lambda point: point['pos'][0])
-    return p   
-print 'Conecte Wii...'
-wm = cwiid.Wiimote()
-barulho.toca(sta)
-wm.rpt_mode = cwiid.RPT_BTN | cwiid.RPT_ACC | cwiid.RPT_IR | cwiid.RPT_MOTIONPLUS
+    return p
+wm=None
+def wiifind(messy,bessy):
+    def runner(tela, wii):
+        pitch=0
+        roll=0
+        while 1:
+            if wii:
+                cur=ImageTk.PhotoImage(curry)
+                ps = filter(mtest,  wii.state['ir_src'])
+                dist=0
+                du=0
+                mid=[]
+                if wii.state['buttons'] & 2048 :
+                    if len(ps)>1 :
+                        du=pow(pow(ps[1]['pos'][0]-ps[0]['pos'][0], 2)+pow(ps[1]['pos'][1]-ps[0]['pos'][1], 2), 0.5)
+                        DISTA[1]=int(du)
+                        pitch=math.asin(zangle(wii.state['acc'][1]))
+                        roll=math.asin(zangle(wii.state['acc'][0]))
+                        print "distancia mínima"
+                        print DISTA
+                if wii.state['buttons'] & 1024 :
+                    if len(ps)>1 :
+                        du=pow(pow(ps[1]['pos'][0]-ps[0]['pos'][0], 2)+pow(ps[1]['pos'][1]-ps[0]['pos'][1], 2), 0.5)
+                        DISTA[0]=int(du)
+                        print "distancia máxima"
+                        print DISTA
+
+                if len(ps)>1 :
+                    du=pow(pow(ps[1]['pos'][0]-ps[0]['pos'][0], 2)+pow(ps[1]['pos'][1]-ps[0]['pos'][1], 2), 0.5)
+                    dist=int(sprawl(du))
+                    xo=(ps[0]['pos'][0]+ps[1]['pos'][0]) / 2.0 - 512
+                    yo=384 - (ps[0]['pos'][1]+ps[1]['pos'][1]) / 2.0
+                    if ps[1]['pos'][0] != ps[0]['pos'][0] :
+                        teta=1 * math.atan(1.0 * (ps[1]['pos'][1] - ps[0]['pos'][1] )/(ps[1]['pos'][0] - ps[0]['pos'][0] ))
+                    else :
+                        teta = math.pi / 2.0
+                    x=xp * (512 + xo * math.cos(teta) - yo * math.sin(teta) )
+                    y=yp * (384 + xo * math.sin(teta) + yo * math.cos(teta) )
+                    if wii.state['buttons'] & 4 :
+                        gradient=ims[dist]
+                        tela.create_image(xt-x-dist/2, yt-y-dist/2, image=gradient)
+
+                    tela.create_image(xt-x-16, yt-y-16, image=cur)
+			
+                else :
+                    ant=None
+                if wii.state['buttons'] & 1 :
+                    tela.delete('all')
+                if wii.state['buttons'] & 2 :
+                    break
+    #        barulho.toca#("alert_sound_ideal_for_software_systems_etc_ver_15.mp3")
+    #        top.destroy()
+    #        exit()
+   
+    print 'Conecte Wii...'
+    wm = cwiid.Wiimote()
+    try:
+        barulho.toca(sta)
+    except:
+        print "\nseu cala boca\n"
+    wm.rpt_mode = cwiid.RPT_BTN | cwiid.RPT_ACC | cwiid.RPT_IR
+    thread.start_new_thread( runner, ( c, wm ) )
+    
 
 i=0;
 top = Tkinter.Tk()
 
 things=[]
-def runner(tela, wii):
-    pitch=0
-    roll=0
-
-    while wii:
-        #print math.atan(wii.state['acc'][1] / 50.0)
-        #print math.asin((wii.state['acc'][1]-100) / 50.0)
-        #time.sleep(0.01)
-        ps = filter(mtest,  wii.state['ir_src'])
-        dist=0
-        du=0
-        mid=[]
-        if wii.state['buttons'] & 2048 :
-            if len(ps)>1 :
-                du=pow(pow(ps[1]['pos'][0]-ps[0]['pos'][0], 2)+pow(ps[1]['pos'][1]-ps[0]['pos'][1], 2), 0.5)
-                DISTA[1]=int(du)
-                pitch=math.asin(zangle(wii.state['acc'][1]))
-                roll=math.asin(zangle(wii.state['acc'][0]))
-                print "distancia mínima"
-                print DISTA
-        if wii.state['buttons'] & 1024 :
-            if len(ps)>1 :
-                du=pow(pow(ps[1]['pos'][0]-ps[0]['pos'][0], 2)+pow(ps[1]['pos'][1]-ps[0]['pos'][1], 2), 0.5)
-                DISTA[0]=int(du)
-                print "distancia máxima"
-                print DISTA
-        if wii.state['buttons'] & 4 :
-            if len(ps)>1 :
-                du=pow(pow(ps[1]['pos'][0]-ps[0]['pos'][0], 2)+pow(ps[1]['pos'][1]-ps[0]['pos'][1], 2), 0.5)
-                dist=int(sprawl(du))
-                xo=(ps[0]['pos'][0]+ps[1]['pos'][0]) / 2.0 - 512
-                yo=384 - (ps[0]['pos'][1]+ps[1]['pos'][1]) / 2.0
-                print xo
-                print yo
-                if ps[1]['pos'][0] != ps[0]['pos'][0] :
-                    teta=1 * math.atan(1.0 * (ps[1]['pos'][1] - ps[0]['pos'][1] )/(ps[1]['pos'][0] - ps[0]['pos'][0] ))
-                else :
-                    teta = math.pi / 2.0
-                print teta
-                x=xp * (512 + xo * math.cos(teta) - yo * math.sin(teta) )
-                y=yp * (384 + xo * math.sin(teta) + yo * math.cos(teta) )
-                #print x
-                #print y
-                #y = y - math.sin(math.asin(zangle(wii.state['acc'][1]))-pitch) * yt * 2
-                #y = y - math.sin(math.asin(zangle(wii.state['acc'][0]))-roll) * yt * 2
-                #x = x - math.sin(math.asin(zangle(wii.state['acc'][0]))-roll) * xt * 2
-               
-                gradient=ims[dist]
-                #print mid
-                #pos={'x':round(xt-xp*(mid[0]+dist/2.0)), 'y':round(yp*(mid[1]+dist/2.0))}
-                tela.create_image(xt-x, yt-y, image=gradient)
-
-                    
-                #ant={'x':pos['x'], 'y':pos['y']}
-        else :
-            ant=None
-        if wii.state['buttons'] & 1 :
-            tela.delete('all')
-        if wii.state['buttons'] & 2 :
-            break
-    barulho.toca("alert_sound_ideal_for_software_systems_etc_ver_15.mp3")
-    top.destroy()
-    exit()
-
+    
 
 c = Tkinter.Canvas(top, bg="black", height=yt, width=xt)
 e=Image.open("empty.png")
+
+curry=Image.open("cursor.png")
 
 ims={}
 
@@ -140,13 +139,13 @@ for i in range(SPRAY[0],SPRAY[1]+1) :
     img=Image.open("buff.png")
     iw=img.resize((i,i), Image.ANTIALIAS)
     opacity=1.0*(SPRAY[1]-i)/(SPRAY[1]-SPRAY[0])
-    print opacity
+    #print opacity
     alpha = iw.split()[3]
     alpha = ImageEnhance.Brightness(alpha).enhance(opacity)
     iw.putalpha(alpha)
     ims[i]=ImageTk.PhotoImage(iw)
 
-thread.start_new_thread( runner, ( c, wm ) )
+thread.start_new_thread( wiifind, ( c, wm ) )
 c.pack()
 
 
