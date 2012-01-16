@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # coding=UTF8
 
+from configobj import ConfigObj
+
 import math
 import cwiid
 import time
@@ -15,6 +17,19 @@ import ImageTk
 apit = 'blast_from_clothes_cleaning_machine.mp3'
 sta = 'fm_synthesis_effect_5_good_for_sci_fi_sounds.mp3'
 put = 'punch25.mp3'
+qua = 'BEEPKIND.WAV'
+
+config = ConfigObj("spray.conf")
+
+try :
+    PAL =  [int(config['palheta'][0]),int(config['palheta'][1])]
+except :
+    PAL=[10,10]
+
+try :
+    MAS = [int(config['mask'][0]),int(config['mask'][1])]
+except :
+    MAS = [500,100]
 
 X=1024.0
 Y=768.0
@@ -23,14 +38,28 @@ D=0.2
 DELAY=20
 DAC=40
 wm=None
-
+top = Tkinter.Tk()
 SPRAY = [5,  80]
-DISTA = [190, 214]
-xt=800.0
-yt=600.0
+try:
+    DISTA = [int(config['dista'][0]),int(config['dista'][1])]
+except :
+    DISTA = [190, 214]
+xt = 1024 #top.winfo_screenwidth()
+yt = 768 #top.winfo_screenheight()
+top.focus_set() # <-- move focus to this widget
+top.bind("<Escape>", lambda e: e.widget.quit())
 
-xp=xt/X
-yp=yt/Y
+
+
+xp=1.0*xt/X
+yp=1.0*yt/Y
+
+def saveconf():
+    config['mask']=MAS
+    config['palheta']=PAL
+    config['dista']=DISTA
+    config.write()
+    
 def zangle(n):
     zu = (n-95) / 25.0 - 1
     if zu > 1: 
@@ -58,11 +87,28 @@ def sortof(p) :
 def sortx(p) :
     p=sorted(p, key=lambda point: point['pos'][0])
     return p
+def pinta(iw, cor) :
+      alpha = iw.split()[3]
+      iw = Image.new('RGB', alpha.size, cor)
+      iw.paste(iw.convert('RGB'), mask=alpha)
+      iw.putalpha(alpha)
+      return iw
 wm=None
 def wiifind(messy,bessy):
     def runner(tela, wii):
+        zona = Image.new('RGBA', (xt,yt), (0,0,0))
+        canv = ImageTk.PhotoImage(zona)
+        tela.create_image(xt/2,yt/2, image=canv)
+       
+        REVES = False
+        cor=0
         pitch=0
         roll=0
+        palha = None
+        maska = None
+        maskara = None
+        stencil = None
+        mu = None
         while 1:
             if wii:
                 cur=ImageTk.PhotoImage(curry)
@@ -70,6 +116,7 @@ def wiifind(messy,bessy):
                 dist=0
                 du=0
                 mid=[]
+
                 if wii.state['buttons'] & 2048 :
                     if len(ps)>1 :
                         du=pow(pow(ps[1]['pos'][0]-ps[0]['pos'][0], 2)+pow(ps[1]['pos'][1]-ps[0]['pos'][1], 2), 0.5)
@@ -78,34 +125,130 @@ def wiifind(messy,bessy):
                         roll=math.asin(zangle(wii.state['acc'][0]))
                         print "distancia mínima"
                         print DISTA
+                        saveconf()
                 if wii.state['buttons'] & 1024 :
                     if len(ps)>1 :
                         du=pow(pow(ps[1]['pos'][0]-ps[0]['pos'][0], 2)+pow(ps[1]['pos'][1]-ps[0]['pos'][1], 2), 0.5)
                         DISTA[0]=int(du)
                         print "distancia máxima"
                         print DISTA
+                        saveconf()
 
                 if len(ps)>1 :
                     du=pow(pow(ps[1]['pos'][0]-ps[0]['pos'][0], 2)+pow(ps[1]['pos'][1]-ps[0]['pos'][1], 2), 0.5)
                     dist=int(sprawl(du))
-                    xo=(ps[0]['pos'][0]+ps[1]['pos'][0]) / 2.0 - 512
-                    yo=384 - (ps[0]['pos'][1]+ps[1]['pos'][1]) / 2.0
+                    xo=(ps[0]['pos'][0]+ps[1]['pos'][0]) / 2.0
+                    yo=(ps[0]['pos'][1]+ps[1]['pos'][1]) / 2.0
+
                     if ps[1]['pos'][0] != ps[0]['pos'][0] :
-                        teta=1 * math.atan(1.0 * (ps[1]['pos'][1] - ps[0]['pos'][1] )/(ps[1]['pos'][0] - ps[0]['pos'][0] ))
+                        teta=math.atan(1.0 * (ps[1]['pos'][1] - ps[0]['pos'][1] )/(ps[1]['pos'][0] - ps[0]['pos'][0] ))
                     else :
                         teta = math.pi / 2.0
-                    x=xp * (512 + xo * math.cos(teta) - yo * math.sin(teta) )
-                    y=yp * (384 + xo * math.sin(teta) + yo * math.cos(teta) )
-                    if wii.state['buttons'] & 4 :
-                        gradient=ims[dist]
-                        tela.create_image(xt-x-dist/2, yt-y-dist/2, image=gradient)
 
-                    tela.create_image(xt-x-16, yt-y-16, image=cur)
+                    if REVES :
+                        teta -= math.pi / 2.0
+                    x=xp * (512 + (xo-512) * math.cos(teta) + (yo-384) * math.sin(teta) )
+                    y=yp * (384 + (yo-384) * math.cos(teta) - (xo-512) * math.sin(teta) )
+                    
+                    #coordenadas para tela:
+                    
+                  
+                    xu = int(x)
+                    yu = int(y)
+                    if not REVES :
+                        xu = int(xt - x)
+                    if wii.state['buttons'] & 4 :
+                        if palha :
+                            yk = yu - ( PAL[1] - 267 )
+                            if yk > 0 and yk < 535 :
+                                cor = int(round( 11 * yk / 535 ))
+                        elif maska:
+                            mk = xu - ( MAS[0] - 282 )
+                            if mk > 0 and mk < 566 :
+                                maskara = int(round( 6 * mk / 566))
+                                print "i've set up maskara as "+str(maskara)
+                                
+                                tela.delete(maska)
+                                maska = None  
+                        else :
+                            gradient=ims[dist][cor]
+                            if mu:
+                                j = masks[maskara].rotate(teta / (2*math.pi) * -360).copy()
+                                zona.paste(pinta(j,colors[cor]), (xu-j.size[0]/2,yu-j.size[1]/2),j)
+                                canv = ImageTk.PhotoImage(zona)
+                                tela.create_image(xt/2,yt/2, image=canv)
+                                tela.delete(mu)
+                                ant=None
+                            else :
+                                #tela.create_image(xu-dist/2, yu-dist/2, image=gradient)
+                                zona.paste(ims[dist][cor], (xu-dist/2,yu-dist/2), ims[dist][cor])
+                                canv = ImageTk.PhotoImage(zona)
+                                tela.create_image(xt/2,yt/2, image=canv)
+                                ago = {'x':xu, 'y':yu}
+                            if not not ant :
+                                du = distancia(ago, ant)
+                                if du > dist :
+                                    passos = 2.5 * du / dist
+                                    if passos < 25 :
+                                        inc = {'x':(ago['x']-ant['x'])/passos,'y':(ago['y']-ant['y'])/passos }
+                                        for pu in range(0, int(passos)) :
+                                            ago['x'] += inc['x']
+                                            ago['y'] += inc['y']
+                                            zona.paste(ims[dist][cor], (int(ago['x']-dist/2),int(ago['y']-dist/2)), ims[dist][cor])
+                                            #tela.create_image(int(ago['x']-dist/2), int(ago['y']-dist/2), image=gradient)
+                                        tela.create_image(xt/2,yt/2, image=canv)
+                            
+                            ant = {'x':xu, 'y':yu}
+                    else:
+                        ant = None
+                        if xu < PAL[0] :
+                            if not palha :
+                                palha = tela.create_image(PAL[0], PAL[1], image=pal)
+                        if not not palha :
+                            if xu > PAL[0] + 100 :
+                                tela.delete(palha)
+                                palha = None
+                        
+                        if yu < MAS[1] :
+                            if not maska :
+                                maskara = None
+                                if mu:
+                                    tela.delete(mu)
+                                    mu = None
+                                maska = tela.create_image(MAS[0], MAS[1], image=mas)
+                        if not not maska :
+                            if yu > MAS[1] + 200 :
+                                tela.delete(maska)
+                                maska = None      
+                    if wii.state['buttons'] & 256 :
+                        PAL[0] = int(xu)
+                        PAL[1] = int(yu)
+                        saveconf()
+                    if wii.state['buttons'] & 512 :
+                        MAS[0] = int(xu)
+                        MAS[1] = int(yu)
+                        saveconf()
+
+                    tela.create_image(xu-16, yu-16, image=cur)
+                    if maskara :
+                        if not masks[maskara] :
+                            maskara = None
+                        elif not wii.state['buttons'] & 4 :
+                            stencil=ImageTk.PhotoImage(masks[maskara].rotate(teta / (2*math.pi) * -360))
+                            mu = tela.create_image(xu, yu, image=stencil)
 			
                 else :
                     ant=None
                 if wii.state['buttons'] & 1 :
                     tela.delete('all')
+                    zona = Image.new('RGBA', (xt,yt), (0,0,0))
+                    canv = ImageTk.PhotoImage(zona)
+                if wii.state['buttons'] & 8 :
+                    barulho.toca(put)
+                    REVES = not REVES
+                    while wii.state['buttons'] & 8 :
+                        print "peraí"
+                    
                 if wii.state['buttons'] & 2 :
                     break
     #        barulho.toca#("alert_sound_ideal_for_software_systems_etc_ver_15.mp3")
@@ -113,7 +256,12 @@ def wiifind(messy,bessy):
     #        exit()
    
     print 'Conecte Wii...'
-    wm = cwiid.Wiimote()
+    try:
+        wm = cwiid.Wiimote()
+    except:
+        print "Tente de novo\n"
+        thread.start_new_thread( runner, ( messy,bessy) )
+        exit()
     try:
         barulho.toca(sta)
     except:
@@ -123,27 +271,51 @@ def wiifind(messy,bessy):
     
 
 i=0;
-top = Tkinter.Tk()
+
 
 things=[]
     
 
 c = Tkinter.Canvas(top, bg="black", height=yt, width=xt)
+def apag(eve):
+    if eve.char == 'r' or eve.char == 'R': 
+        c.delete('all')
+    if eve.char == 'q' or eve.char == 'Q':
+        exit()
+
+top.bind_all("<Key>", apag )
 e=Image.open("empty.png")
 
 curry=Image.open("cursor.png")
+pal=Image.open("palheta.png")
 
+
+pal = ImageTk.PhotoImage(pal)
+mas=Image.open("masks.png")
+mas = ImageTk.PhotoImage(mas)
 ims={}
-
+masks=[]
+colors=[(255,0,0), (200,0,166), (150,0,215), (106,0,212), (0,0,215), (22,116,212), (44,189,206), (48,204,156), (102,205,0), (204,196,1), (202,124,0)]
 for i in range(SPRAY[0],SPRAY[1]+1) :
-    img=Image.open("buff.png")
-    iw=img.resize((i,i), Image.ANTIALIAS)
-    opacity=1.0*(SPRAY[1]-i)/(SPRAY[1]-SPRAY[0])
-    #print opacity
-    alpha = iw.split()[3]
-    alpha = ImageEnhance.Brightness(alpha).enhance(opacity)
-    iw.putalpha(alpha)
-    ims[i]=ImageTk.PhotoImage(iw)
+    ims[i] = {}
+    for co in range(0, len(colors)) :
+      img=Image.open("buff.png")
+      iw=img.resize((i,i), Image.ANTIALIAS)
+      opacity=1.0*(SPRAY[1]-i)/(SPRAY[1]-SPRAY[0])
+      #print opacity
+      alpha = iw.split()[3]
+      alpha = ImageEnhance.Brightness(alpha).enhance(opacity)
+      iw = Image.new('RGB', alpha.size, colors[co])
+      iw.paste(iw.convert('RGB'), mask=alpha)
+      iw.putalpha(alpha)
+#      ims[i][co]=ImageTk.PhotoImage(iw)
+      ims[i][co]=iw
+
+for i in range(0, 6) :
+    k = Image.open("masks_"+str(i)+".png")
+    masks.append(k)
+
+
 
 thread.start_new_thread( wiifind, ( c, wm ) )
 c.pack()
