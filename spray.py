@@ -99,7 +99,7 @@ def wiifind(messy,bessy):
         zona = Image.new('RGBA', (xt,yt), (0,0,0))
         canv = ImageTk.PhotoImage(zona)
         tela.create_image(xt/2,yt/2, image=canv)
-       
+        masquerades={}
         REVES = False
         cor=0
         pitch=0
@@ -166,24 +166,32 @@ def wiifind(messy,bessy):
                             mk = xu - ( MAS[0] - 282 )
                             if mk > 0 and mk < 566 :
                                 maskara = int(round( 6 * mk / 566))
-                                print "i've set up maskara as "+str(maskara)
-                                
-                                tela.delete(maska)
-                                maska = None  
+                                print "i've set up maskara as "+str(maskara)  
                         else :
-                            gradient=ims[dist][cor]
-                            if mu:
-                                j = masks[maskara].rotate(teta / (2*math.pi) * -360).copy()
-                                zona.paste(pinta(j,colors[cor]), (xu-j.size[0]/2,yu-j.size[1]/2),j)
-                                canv = ImageTk.PhotoImage(zona)
-                                tela.create_image(xt/2,yt/2, image=canv)
-                                tela.delete(mu)
+                            gradient=imf[dist][cor]
+                            if mu != None:
+                                
+                                if not cor in masquerades :
+                                    masquerades[cor]={}
+                                if not maskara in masquerades[cor] :
+                                    masquerades[cor][maskara]={}
+                                if not teta in masquerades[cor][maskara] :
+                                    j=masks[maskara].rotate(teta / (2*math.pi) * -360).copy()
+                                    masquerades[cor][maskara][teta] = ImageTk.PhotoImage(pinta(j,colors[cor]))
+                                #mi=ImageTk.PhotoImage(masquerades[cor][maskara][teta])
+                                tela.create_image(xu,yu,image=masquerades[cor][maskara][teta])
+
+
+                                #zona.paste(pinta(j,colors[cor]), (xu-j.size[0]/2,yu-j.size[1]/2),j)
+                                #canv = ImageTk.PhotoImage(zona)
+                                #tela.create_image(xt/2,yt/2, image=canv)
+                                #tela.delete(mu)
                                 ant=None
                             else :
-                                #tela.create_image(xu-dist/2, yu-dist/2, image=gradient)
-                                zona.paste(ims[dist][cor], (xu-dist/2,yu-dist/2), ims[dist][cor])
-                                canv = ImageTk.PhotoImage(zona)
-                                tela.create_image(xt/2,yt/2, image=canv)
+                                tela.create_image(xu-dist/2, yu-dist/2, image=gradient)
+                                #zona.paste(ims[dist][cor], (xu-dist/2,yu-dist/2), ims[dist][cor])
+                                #canv = ImageTk.PhotoImage(zona)
+                                #tela.create_image(xt/2,yt/2, image=canv)
                                 ago = {'x':xu, 'y':yu}
                             if not not ant :
                                 du = distancia(ago, ant)
@@ -194,9 +202,9 @@ def wiifind(messy,bessy):
                                         for pu in range(0, int(passos)) :
                                             ago['x'] += inc['x']
                                             ago['y'] += inc['y']
-                                            zona.paste(ims[dist][cor], (int(ago['x']-dist/2),int(ago['y']-dist/2)), ims[dist][cor])
-                                            #tela.create_image(int(ago['x']-dist/2), int(ago['y']-dist/2), image=gradient)
-                                        tela.create_image(xt/2,yt/2, image=canv)
+                                            #zona.paste(ims[dist][cor], (int(ago['x']-dist/2),int(ago['y']-dist/2)), ims[dist][cor])
+                                            tela.create_image(int(ago['x']-dist/2), int(ago['y']-dist/2), image=gradient)
+                                        #tela.create_image(xt/2,yt/2, image=canv)
                             
                             ant = {'x':xu, 'y':yu}
                     else:
@@ -230,7 +238,7 @@ def wiifind(messy,bessy):
                         saveconf()
 
                     tela.create_image(xu-16, yu-16, image=cur)
-                    if maskara :
+                    if maskara != None:
                         if not masks[maskara] :
                             maskara = None
                         elif not wii.state['buttons'] & 4 :
@@ -280,6 +288,9 @@ c = Tkinter.Canvas(top, bg="black", height=yt, width=xt)
 def apag(eve):
     if eve.char == 'r' or eve.char == 'R': 
         c.delete('all')
+	zona = Image.new('RGBA', (xt,yt), (0,0,0))
+	canv = ImageTk.PhotoImage(zona)
+	c.create_image(xt/2,yt/2, image=canv)
     if eve.char == 'q' or eve.char == 'Q':
         exit()
 
@@ -294,21 +305,24 @@ pal = ImageTk.PhotoImage(pal)
 mas=Image.open("masks.png")
 mas = ImageTk.PhotoImage(mas)
 ims={}
+imf={}
 masks=[]
 colors=[(255,0,0), (200,0,166), (150,0,215), (106,0,212), (0,0,215), (22,116,212), (44,189,206), (48,204,156), (102,205,0), (204,196,1), (202,124,0)]
+
 for i in range(SPRAY[0],SPRAY[1]+1) :
     ims[i] = {}
+    imf[i] = {}
     for co in range(0, len(colors)) :
       img=Image.open("buff.png")
       iw=img.resize((i,i), Image.ANTIALIAS)
-      opacity=1.0*(SPRAY[1]-i)/(SPRAY[1]-SPRAY[0])
+      opacity=1.0 #*(SPRAY[1]-i)/(SPRAY[1]-SPRAY[0])
       #print opacity
       alpha = iw.split()[3]
       alpha = ImageEnhance.Brightness(alpha).enhance(opacity)
       iw = Image.new('RGB', alpha.size, colors[co])
       iw.paste(iw.convert('RGB'), mask=alpha)
       iw.putalpha(alpha)
-#      ims[i][co]=ImageTk.PhotoImage(iw)
+      imf[i][co]=ImageTk.PhotoImage(iw)
       ims[i][co]=iw
 
 for i in range(0, 6) :
