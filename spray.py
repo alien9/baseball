@@ -2,7 +2,7 @@
 # coding=UTF8
 
 from configobj import ConfigObj
-
+import os
 import math
 import cwiid
 import time
@@ -13,6 +13,7 @@ import tkMessageBox
 import thread
 import threading
 import ImageTk
+import re
 
 apit = 'blast_from_clothes_cleaning_machine.mp3'
 sta = 'fm_synthesis_effect_5_good_for_sci_fi_sounds.mp3'
@@ -270,10 +271,7 @@ def wiifind(messy,bessy):
         print "Tente de novo\n"
         thread.start_new_thread( runner, ( messy,bessy) )
         exit()
-    try:
-        barulho.toca(sta)
-    except:
-        print "\nseu cala boca\n"
+    barulho.toca(sta)
     wm.rpt_mode = cwiid.RPT_BTN | cwiid.RPT_ACC | cwiid.RPT_IR
     thread.start_new_thread( runner, ( c, wm ) )
     
@@ -288,9 +286,23 @@ c = Tkinter.Canvas(top, bg="black", height=yt, width=xt)
 def apag(eve):
     if eve.char == 'r' or eve.char == 'R': 
         c.delete('all')
-	zona = Image.new('RGBA', (xt,yt), (0,0,0))
-	canv = ImageTk.PhotoImage(zona)
-	c.create_image(xt/2,yt/2, image=canv)
+    if eve.char == 'p' or eve.char == 'P' :
+        #printa imagem pra mandar
+        if not os.path.exists('images') :
+            os.mkdir('images')
+        fl = os.listdir('images')
+        fl.sort()
+        n = 0
+        if len(fl) :
+            ru = re.compile('_(\d+)\.jpg')
+            gu = ru.search(fl.pop())
+            if gu :
+                n = int(gu.group(1))
+        c.postscript(file="images/pic_"+(str(n).zfill(5))+".eps") # save canvas as encapsulated postscript
+        import subprocess as sp
+        child = sp.Popen("mogrify -format jpg images/pic_"+(str(n).zfill(5))+".eps", shell=True) # convert eps to jpg with ImageMagick
+        child.wait()
+        
     if eve.char == 'q' or eve.char == 'Q':
         exit()
 
