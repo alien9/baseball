@@ -79,7 +79,9 @@ def sprawl(d):
         d = DISTA[0]
     if SPRAY[0]>=SPRAY[1] :
         SPRAY[1]=SPRAY[0]+1
-    return SPRAY[1]-1.0*(d-DISTA[0])/(DISTA[1]-DISTA[0])*(SPRAY[1]-SPRAY[0])
+    if (DISTA[1]-DISTA[0])*(SPRAY[1]-SPRAY[0]) != 0 :
+        return SPRAY[1]-1.0*(d-DISTA[0])/(DISTA[1]-DISTA[0])*(SPRAY[1]-SPRAY[0])
+    return 10
 def sortof(p) :
     p=sorted(p, key=lambda point: point['pos'][1])
     p.reverse()
@@ -161,11 +163,11 @@ def wiifind(messy,bessy):
                         if palha :
                             yk = yu - ( PAL[1] - 267 )
                             if yk > 0 and yk < 535 :
-                                cor = int(round( 11 * yk / 535 ))
+                                cor = int(round( 12 * yk / 535 ))
                         elif maska:
                             mk = xu - ( MAS[0] - 282 )
                             if mk > 0 and mk < 566 :
-                                maskara = int(round( 6 * mk / 566))
+                                maskara = int(round( 5 * mk / 566))
                                 print "i've set up maskara as "+str(maskara)  
                         else :
                             gradient=imf[dist][cor]
@@ -307,7 +309,7 @@ mas = ImageTk.PhotoImage(mas)
 ims={}
 imf={}
 masks=[]
-colors=[(255,0,0), (200,0,166), (150,0,215), (106,0,212), (0,0,215), (22,116,212), (44,189,206), (48,204,156), (102,205,0), (204,196,1), (202,124,0)]
+colors=[(255,0,0), (200,0,166), (150,0,215), (106,0,212), (0,0,215), (22,116,212), (44,189,206), (48,204,156), (102,205,0), (204,196,1), (202,124,0), (0,0,0)]
 
 for i in range(SPRAY[0],SPRAY[1]+1) :
     ims[i] = {}
