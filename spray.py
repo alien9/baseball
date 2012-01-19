@@ -252,8 +252,9 @@ def wiifind(messy,bessy):
                     ant=None
                 if wii.state['buttons'] & 1 :
                     tela.delete('all')
-                    zona = Image.new('RGBA', (xt,yt), (0,0,0))
-                    canv = ImageTk.PhotoImage(zona)
+                    tela.create_rectangle(0, 0, xt, yt, width=0, fill='black')
+                    #zona = Image.new('RGBA', (xt,yt), (0,0,0))
+                    #canv = ImageTk.PhotoImage(zona)
                 if wii.state['buttons'] & 8 :
                     barulho.toca(put)
                     REVES = not REVES
@@ -288,18 +289,19 @@ c = Tkinter.Canvas(top, bg="black", height=yt, width=xt)
 def apag(eve):
     if eve.char == 'r' or eve.char == 'R': 
         c.delete('all')
+        c.create_rectangle(0, 0, xt, yt, width=0, fill='black')
     if eve.char == 'p' or eve.char == 'P' :
         #printa imagem pra mandar
         if not os.path.exists('images') :
             os.mkdir('images')
         fl = os.listdir('images')
         fl.sort()
-        n = 0
+        n = 1
         if len(fl) :
             ru = re.compile('_(\d+)\.jpg')
             gu = ru.search(fl.pop())
-            if gu :
-                n = int(gu.group(1))
+            if gu!=None :
+                n = int(gu.group(1))+1
         c.postscript(file="images/pic_"+(str(n).zfill(5))+".eps") # save canvas as encapsulated postscript
         import subprocess as sp
         child = sp.Popen("mogrify -format jpg images/pic_"+(str(n).zfill(5))+".eps", shell=True) # convert eps to jpg with ImageMagick
