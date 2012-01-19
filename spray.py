@@ -164,11 +164,11 @@ def wiifind(messy,bessy):
                         if palha :
                             yk = yu - ( PAL[1] - 267 )
                             if yk > 0 and yk < 535 :
-                                cor = int(round( 12 * yk / 535 ))
+                                cor = int(math.floor( 12 * yk / 535 ))
                         elif maska:
                             mk = xu - ( MAS[0] - 282 )
                             if mk > 0 and mk < 566 :
-                                maskara = int(round( 5 * mk / 566))
+                                maskara = int(math.floor( 5 * mk / 560))
                                 print "i've set up maskara as "+str(maskara)  
                         else :
                             gradient=imf[dist][cor]
