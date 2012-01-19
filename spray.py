@@ -206,7 +206,7 @@ def wiifind(messy,bessy):
                                             ago['x'] += inc['x']
                                             ago['y'] += inc['y']
                                             #zona.paste(ims[dist][cor], (int(ago['x']-dist/2),int(ago['y']-dist/2)), ims[dist][cor])
-                                            tela.create_image(int(ago['x']-dist/2), int(ago['y']-dist/2), image=gradient)
+                                            tela.create_image(int(ago['x']), int(ago['y']), image=gradient)
                                         #tela.create_image(xt/2,yt/2, image=canv)
                             
                             ant = {'x':xu, 'y':yu}
