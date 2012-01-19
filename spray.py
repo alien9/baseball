@@ -164,7 +164,7 @@ def wiifind(messy,bessy):
                         if palha :
                             yk = yu - ( PAL[1] - 267 )
                             if yk > 0 and yk < 535 :
-                                cor = int(math.floor( 12 * yk / 535 ))
+                                cor = int(math.floor( 12 * (yk-18) / 535 ))
                         elif maska:
                             mk = xu - ( MAS[0] - 282 )
                             if mk > 0 and mk < 566 :
