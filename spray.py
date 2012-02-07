@@ -200,7 +200,7 @@ def wiifind(messy,bessy):
                                 #tela.delete(mu)
                                 ant=None
                             else :
-                                tela.create_image(xu-dist/2, yu-dist/2, image=gradient)
+                                tela.create_image(xu, yu, image=gradient)
                                 #zona.paste(ims[dist][cor], (xu-dist/2,yu-dist/2), ims[dist][cor])
                                 #canv = ImageTk.PhotoImage(zona)
                                 #tela.create_image(xt/2,yt/2, image=canv)
@@ -249,7 +249,7 @@ def wiifind(messy,bessy):
                         MAS[1] = int(yu)
                         saveconf()
 
-                    tela.create_image(xu-16, yu-16, image=cur)
+                    tela.create_image(xu, yu, image=cur)
                     if maskara != None:
                         if not masks[maskara] :
                             maskara = None
