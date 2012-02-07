@@ -80,7 +80,9 @@ def sprawl(d):
         d = DISTA[0]
     if SPRAY[0]>=SPRAY[1] :
         SPRAY[1]=SPRAY[0]+1
-    return SPRAY[1]-1.0*(d-DISTA[0])/(DISTA[1]-DISTA[0])*(SPRAY[1]-SPRAY[0])
+    if (DISTA[1]-DISTA[0])*(SPRAY[1]-SPRAY[0]) != 0 :
+        return SPRAY[1]-1.0*(d-DISTA[0])/(DISTA[1]-DISTA[0])*(SPRAY[1]-SPRAY[0])
+    return 10
 def sortof(p) :
     p=sorted(p, key=lambda point: point['pos'][1])
     p.reverse()
@@ -153,8 +155,8 @@ def wiifind(messy,bessy):
                     else :
                         teta = math.pi / 2.0
 
-                    if REVES :
-                        teta -= math.pi / 2.0
+#                    if REVES :
+#                        teta -= math.pi / 2.0
                     x=xp * (512 + (xo-512) * math.cos(teta) + (yo-384) * math.sin(teta) )
                     y=yp * (384 + (yo-384) * math.cos(teta) - (xo-512) * math.sin(teta) )
                     
@@ -163,17 +165,19 @@ def wiifind(messy,bessy):
                   
                     xu = int(x)
                     yu = int(y)
-                    if not REVES :
-                        xu = int(xt - x)
+                    if REVES:
+                        yu = yt-yu
+#                    if not REVES :
+                    xu = int(xt - x)
                     if wii.state['buttons'] & 4 :
                         if palha :
                             yk = yu - ( PAL[1] - 267 )
                             if yk > 0 and yk < 535 :
-                                cor = int(round( 11 * yk / 535 ))
+                                cor = int(math.floor( 12 * (yk-18) / 535 ))
                         elif maska:
                             mk = xu - ( MAS[0] - 282 )
                             if mk > 0 and mk < 566 :
-                                maskara = int(round( 6 * mk / 566))
+                                maskara = int(math.floor( 5 * mk / 560))
                                 print "i've set up maskara as "+str(maskara)  
                         else :
                             gradient=imf[dist][cor]
@@ -211,7 +215,7 @@ def wiifind(messy,bessy):
                                             ago['x'] += inc['x']
                                             ago['y'] += inc['y']
                                             #zona.paste(ims[dist][cor], (int(ago['x']-dist/2),int(ago['y']-dist/2)), ims[dist][cor])
-                                            tela.create_image(int(ago['x']-dist/2), int(ago['y']-dist/2), image=gradient)
+                                            tela.create_image(int(ago['x']), int(ago['y']), image=gradient)
                                         #tela.create_image(xt/2,yt/2, image=canv)
                             
                             ant = {'x':xu, 'y':yu}
@@ -257,8 +261,9 @@ def wiifind(messy,bessy):
                     ant=None
                 if wii.state['buttons'] & 1 :
                     tela.delete('all')
-                    zona = Image.new('RGBA', (xt,yt), (0,0,0))
-                    canv = ImageTk.PhotoImage(zona)
+                    tela.create_rectangle(0, 0, xt, yt, width=0, fill='black')
+                    #zona = Image.new('RGBA', (xt,yt), (0,0,0))
+                    #canv = ImageTk.PhotoImage(zona)
                 if wii.state['buttons'] & 8 :
                     barulho.toca(put)
                     REVES = not REVES
@@ -293,6 +298,7 @@ c = Tkinter.Canvas(top, bg="black", height=yt, width=xt)
 def apag(eve):
     if eve.char == 'r' or eve.char == 'R': 
         c.delete('all')
+        c.create_rectangle(0, 0, xt, yt, width=0, fill='black')
     if eve.char == 'p' or eve.char == 'P' :
         #printa imagem pra mandar
         if not os.path.exists('images') :
@@ -300,12 +306,12 @@ def apag(eve):
         fl = os.listdir('images')
         fl=filter(ispic,fl)
         fl.sort()
-        n = 0
+        n = 1
         if len(fl) :
             ru = re.compile('_(\d+)\.jpg')
             gu = ru.search(fl.pop())
-            if gu :
-                n = int(gu.group(1))
+            if gu!=None :
+                n = int(gu.group(1))+1
         c.postscript(file="images/pic_"+(str(n).zfill(5))+".eps") # save canvas as encapsulated postscript
         import subprocess as sp
         child = sp.Popen("mogrify -format jpg images/pic_"+(str(n).zfill(5))+".eps", shell=True) # convert eps to jpg with ImageMagick
@@ -327,7 +333,7 @@ mas = ImageTk.PhotoImage(mas)
 ims={}
 imf={}
 masks=[]
-colors=[(255,0,0), (200,0,166), (150,0,215), (106,0,212), (0,0,215), (22,116,212), (44,189,206), (48,204,156), (102,205,0), (204,196,1), (202,124,0)]
+colors=[(255,0,0), (200,0,166), (150,0,215), (106,0,212), (0,0,215), (22,116,212), (44,189,206), (48,204,156), (102,205,0), (204,196,1), (202,124,0), (0,0,0)]
 
 for i in range(SPRAY[0],SPRAY[1]+1) :
     ims[i] = {}
