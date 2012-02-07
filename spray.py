@@ -205,17 +205,17 @@ def wiifind(messy,bessy):
                                 #canv = ImageTk.PhotoImage(zona)
                                 #tela.create_image(xt/2,yt/2, image=canv)
                                 ago = {'x':xu, 'y':yu}
-                            if not not ant :
-                                du = distancia(ago, ant)
-                                if du > dist :
-                                    passos = 2.5 * du / dist
-                                    if passos < 25 :
-                                        inc = {'x':(ago['x']-ant['x'])/passos,'y':(ago['y']-ant['y'])/passos }
-                                        for pu in range(0, int(passos)) :
-                                            ago['x'] += inc['x']
-                                            ago['y'] += inc['y']
-                                            #zona.paste(ims[dist][cor], (int(ago['x']-dist/2),int(ago['y']-dist/2)), ims[dist][cor])
-                                            tela.create_image(int(ago['x']), int(ago['y']), image=gradient)
+                            #if not not ant :
+                            #    du = distancia(ago, ant)
+                            #    if du > dist :
+                            #        passos = 2.5 * du / dist
+                            #        if passos < 25 :
+                            #            inc = {'x':(ago['x']-ant['x'])/passos,'y':(ago['y']-ant['y'])/passos }
+                            #            for pu in range(0, int(passos)) :
+                            #                ago['x'] += inc['x']
+                            #                ago['y'] += inc['y']
+                            #                #zona.paste(ims[dist][cor], (int(ago['x']-dist/2),int(ago['y']-dist/2)), ims[dist][cor])
+                            #                tela.create_image(int(ago['x']), int(ago['y']), image=gradient)
                                         #tela.create_image(xt/2,yt/2, image=canv)
                             
                             ant = {'x':xu, 'y':yu}
