@@ -148,8 +148,8 @@ def wiifind(messy,bessy):
                     else :
                         teta = math.pi / 2.0
 
-                    if REVES :
-                        teta -= math.pi / 2.0
+#                    if REVES :
+#                        teta -= math.pi / 2.0
                     x=xp * (512 + (xo-512) * math.cos(teta) + (yo-384) * math.sin(teta) )
                     y=yp * (384 + (yo-384) * math.cos(teta) - (xo-512) * math.sin(teta) )
                     
@@ -158,8 +158,10 @@ def wiifind(messy,bessy):
                   
                     xu = int(x)
                     yu = int(y)
-                    if not REVES :
-                        xu = int(xt - x)
+                    if REVES:
+                        yu = yt-yu
+#                    if not REVES :
+                    xu = int(xt - x)
                     if wii.state['buttons'] & 4 :
                         if palha :
                             yk = yu - ( PAL[1] - 267 )
