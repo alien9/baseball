@@ -85,9 +85,16 @@ def sortof(p) :
     p=sorted(p, key=lambda point: point['pos'][1])
     p.reverse()
     return p
+    
 def sortx(p) :
     p=sorted(p, key=lambda point: point['pos'][0])
     return p
+    
+def ispic(w):
+    ru = re.compile('^pic_\d+\.jpg')
+    gu = ru.search(w)
+    return not not gu
+    
 def pinta(iw, cor) :
       alpha = iw.split()[3]
       iw = Image.new('RGB', alpha.size, cor)
@@ -291,6 +298,7 @@ def apag(eve):
         if not os.path.exists('images') :
             os.mkdir('images')
         fl = os.listdir('images')
+        fl=filter(ispic,fl)
         fl.sort()
         n = 0
         if len(fl) :
