@@ -19,6 +19,7 @@ apit = 'blast_from_clothes_cleaning_machine.mp3'
 sta = 'fm_synthesis_effect_5_good_for_sci_fi_sounds.mp3'
 put = 'punch25.mp3'
 qua = 'BEEPKIND.WAV'
+REVES = False
 
 config = ConfigObj("spray.conf")
 
@@ -104,13 +105,15 @@ def pinta(iw, cor) :
       iw.putalpha(alpha)
       return iw
 wm=None
+
 def wiifind(messy,bessy):
     def runner(tela, wii):
+        global REVES
         zona = Image.new('RGBA', (xt,yt), (0,0,0))
         canv = ImageTk.PhotoImage(zona)
         tela.create_image(xt/2,yt/2, image=canv)
         masquerades={}
-        REVES = False
+        
         cor=0
         pitch=0
         roll=0
@@ -296,6 +299,7 @@ things=[]
 
 c = Tkinter.Canvas(top, bg="black", height=yt, width=xt)
 def apag(eve):
+    global REVES
     if eve.char == 'r' or eve.char == 'R': 
         c.delete('all')
         c.create_rectangle(0, 0, xt, yt, width=0, fill='black')
@@ -316,7 +320,9 @@ def apag(eve):
         import subprocess as sp
         child = sp.Popen("mogrify -format jpg images/pic_"+(str(n).zfill(5))+".eps", shell=True) # convert eps to jpg with ImageMagick
         child.wait()
-        
+    if eve.char == 'a' or eve.char == 'A':
+        barulho.toca(put)
+        REVES = not REVES   
     if eve.char == 'q' or eve.char == 'Q':
         exit()
 
