@@ -41,14 +41,15 @@ DELAY=20
 DAC=40
 wm=None
 top = Tkinter.Tk()
-top.overrideredirect(1)
+
+top.attributes('-topmost', True)
+top.resizable(0,0)
 top.configure(background = 'black')
 top.configure(highlightthickness=0)
-w,h=top.winfo_screenwidth(), top.winfo_screenheight()
+w,h=top.winfo_screenwidth(), top.winfo_screenheight()+100
 
 top.geometry("%dx%d+0+0" % (w,h))
-top.focus_set()
-top.bind("<Escape>", lambda e: e.widget.quit())
+top.bind("<Escape>", lambda e: e.quit())
 
 SPRAY = [5,  80]
 try:
@@ -57,10 +58,12 @@ except :
     DISTA = [190, 214]
 xt = 1024 #top.winfo_screenwidth()
 yt = 768 #top.winfo_screenheight()
-top.focus_set() # <-- move focus to this widget
-top.bind("<Escape>", lambda e: e.widget.quit())
 
+#top.overrideredirect(True)
+top.focus() # <-- move focus to this widget
+top.bind("<q>", lambda e: top.quit())
 
+top.wm_title("")
 
 xp=1.0*xt/X
 yp=1.0*yt/Y
@@ -115,7 +118,7 @@ def pinta(iw, cor) :
       return iw
 wm=None
 
-def wiifind(messy,bessy):
+def wiifind(messy,bessy, tkw):
     def runner(tela, wii):
         global REVES
         zona = Image.new('RGBA', (xt,yt), (0,0,0))
@@ -293,7 +296,9 @@ def wiifind(messy,bessy):
         wm = cwiid.Wiimote()
     except:
         print "Tente de novo\n"
-        thread.start_new_thread( runner, ( messy,bessy) )
+        #thread.start_new_thread( runner, ( messy,bessy) )
+        barulho.toca(apit)
+        tkw.quit()
         exit()
     barulho.toca(sta)
     wm.rpt_mode = cwiid.RPT_BTN | cwiid.RPT_ACC | cwiid.RPT_IR
@@ -307,8 +312,9 @@ things=[]
     
 
 c = Tkinter.Canvas(top, bg="black",highlightthickness=0, height=yt, width=xt)
+
 def apag(eve):
-    global REVES
+    global REVES, top
     if eve.char == 'r' or eve.char == 'R': # R apaga a tela
         c.delete('all')
         c.create_rectangle(0, 0, xt, yt, width=0, fill='black')
@@ -333,9 +339,10 @@ def apag(eve):
         barulho.toca(put)
         REVES = not REVES   
     if eve.char == 'q' or eve.char == 'Q':
+        top.quit()
         exit()
 
-top.bind_all("<Key>", apag )
+c.bind_all("<Key>", apag )
 e=Image.open("empty.png")
 
 curry=Image.open("cursor.png")
@@ -372,7 +379,7 @@ for i in range(0, 6) :
 
 
 
-thread.start_new_thread( wiifind, ( c, wm ) )
+thread.start_new_thread( wiifind, ( c, wm, top ) )
 c.pack()
 
 
