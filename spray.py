@@ -41,6 +41,15 @@ DELAY=20
 DAC=40
 wm=None
 top = Tkinter.Tk()
+top.overrideredirect(1)
+top.configure(background = 'black')
+top.configure(highlightthickness=0)
+w,h=top.winfo_screenwidth(), top.winfo_screenheight()
+
+top.geometry("%dx%d+0+0" % (w,h))
+top.focus_set()
+top.bind("<Escape>", lambda e: e.widget.quit())
+
 SPRAY = [5,  80]
 try:
     DISTA = [int(config['dista'][0]),int(config['dista'][1])]
@@ -297,7 +306,7 @@ i=0;
 things=[]
     
 
-c = Tkinter.Canvas(top, bg="black", height=yt, width=xt)
+c = Tkinter.Canvas(top, bg="black",highlightthickness=0, height=yt, width=xt)
 def apag(eve):
     global REVES
     if eve.char == 'r' or eve.char == 'R': # R apaga a tela
