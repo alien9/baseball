@@ -262,7 +262,7 @@ def wiifind(messy,bessy):
 			
                 else :
                     ant=None
-                if wii.state['buttons'] & 1 :
+                if wii.state['buttons'] & 1 : # botao 2 apaga a tela
                     tela.delete('all')
                     tela.create_rectangle(0, 0, xt, yt, width=0, fill='black')
                     #zona = Image.new('RGBA', (xt,yt), (0,0,0))
@@ -270,8 +270,8 @@ def wiifind(messy,bessy):
                 if wii.state['buttons'] & 8 :
                     barulho.toca(put)
                     REVES = not REVES
-                    while wii.state['buttons'] & 8 :
-                        print "peraí"
+                    #while wii.state['buttons'] & 8 :
+                    #    print "peraí"
                     
                 if wii.state['buttons'] & 2 :
                     break
@@ -300,10 +300,10 @@ things=[]
 c = Tkinter.Canvas(top, bg="black", height=yt, width=xt)
 def apag(eve):
     global REVES
-    if eve.char == 'r' or eve.char == 'R': 
+    if eve.char == 'r' or eve.char == 'R': # R apaga a tela
         c.delete('all')
         c.create_rectangle(0, 0, xt, yt, width=0, fill='black')
-    if eve.char == 'p' or eve.char == 'P' :
+    if eve.char == 'p' or eve.char == 'P' : # p salva imagem
         #printa imagem pra mandar
         if not os.path.exists('images') :
             os.mkdir('images')
