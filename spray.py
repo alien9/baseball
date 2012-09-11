@@ -56,8 +56,8 @@ try:
     DISTA = [int(config['dista'][0]),int(config['dista'][1])]
 except :
     DISTA = [190, 214]
-xt = 1024 #top.winfo_screenwidth()
-yt = 768 #top.winfo_screenheight()
+xt = 1280 #top.winfo_screenwidth()
+yt = 960 #top.winfo_screenheight()
 
 #top.overrideredirect(True)
 top.focus() # <-- move focus to this widget
@@ -120,7 +120,7 @@ wm=None
 
 def wiifind(messy,bessy, tkw):
     def runner(tela, wii):
-        global REVES, XBACON
+        global REVES, XBACON, X, Y
         zona = Image.new('RGBA', (xt,yt), (0,0,0))
         canv = ImageTk.PhotoImage(zona)
         tela.create_image(xt/2,yt/2, image=canv)
@@ -172,8 +172,8 @@ def wiifind(messy,bessy, tkw):
 
 #                    if REVES :
 #                        teta -= math.pi / 2.0
-                    x=xp * (512 + (xo-512) * math.cos(teta) + (yo-384) * math.sin(teta) )
-                    y=yp * (384 + (yo-384) * math.cos(teta) - (xo-512) * math.sin(teta) )
+                    x=xp * (X/2 + (xo-X/2) * math.cos(teta) + (yo-Y/2) * math.sin(teta) )
+                    y=yp * (Y/2 + (yo-Y/2) * math.cos(teta) - (xo-X/2) * math.sin(teta) )
                     
                     #coordenadas para tela:
                     
@@ -186,7 +186,7 @@ def wiifind(messy,bessy, tkw):
 #                    if not REVES :
                     xu = int(xt - x)
                     if XBACON:
-                        xu=1024-xu
+                        xu=X-xu
                     
                     if wii.state['buttons'] & 4 :
                         if palha :
@@ -206,11 +206,19 @@ def wiifind(messy,bessy, tkw):
                                     masquerades[cor]={}
                                 if not maskara in masquerades[cor] :
                                     masquerades[cor][maskara]={}
-                                if not teta in masquerades[cor][maskara] :
-                                    j=masks[maskara].rotate(teta / (2*math.pi) * -360).copy()
-                                    masquerades[cor][maskara][teta] = ImageTk.PhotoImage(pinta(j,colors[cor]))
-                                #mi=ImageTk.PhotoImage(masquerades[cor][maskara][teta])
-                                tela.create_image(xu,yu,image=masquerades[cor][maskara][teta])
+                                roda=teta
+                                if XBACON:
+                                    roda=math.pi/2-roda
+                                if REVES:
+                                    roda=2*math.pi-roda
+                                if not roda in masquerades[cor][maskara] :
+
+                                    j=masks[maskara].rotate(roda / (2*math.pi) * -360).copy()
+                                    masquerades[cor][maskara][roda] = ImageTk.PhotoImage(pinta(j,colors[cor]))
+
+                                
+                                
+                                tela.create_image(xu,yu,image=masquerades[cor][maskara][roda])
 
 
                                 #zona.paste(pinta(j,colors[cor]), (xu-j.size[0]/2,yu-j.size[1]/2),j)
@@ -273,7 +281,12 @@ def wiifind(messy,bessy, tkw):
                         if not masks[maskara] :
                             maskara = None
                         elif not wii.state['buttons'] & 4 :
-                            stencil=ImageTk.PhotoImage(masks[maskara].rotate(teta / (2*math.pi) * -360))
+                            roda=teta
+                            if XBACON:
+                                roda=math.pi/2-roda
+                            if REVES:
+                                roda=2*math.pi-roda
+                            stencil=ImageTk.PhotoImage(masks[maskara].rotate(roda / (2*math.pi) * -360))
                             mu = tela.create_image(xu, yu, image=stencil)
 			
                 else :
