@@ -19,8 +19,8 @@ apit = 'blast_from_clothes_cleaning_machine.mp3'
 sta = 'fm_synthesis_effect_5_good_for_sci_fi_sounds.mp3'
 put = 'punch25.mp3'
 qua = 'BEEPKIND.WAV'
-REVES = False
-
+REVES = False # mirroring y?
+XBACON = False #whether we are mirroring x
 config = ConfigObj("spray.conf")
 
 try :
@@ -120,7 +120,7 @@ wm=None
 
 def wiifind(messy,bessy, tkw):
     def runner(tela, wii):
-        global REVES
+        global REVES, XBACON
         zona = Image.new('RGBA', (xt,yt), (0,0,0))
         canv = ImageTk.PhotoImage(zona)
         tela.create_image(xt/2,yt/2, image=canv)
@@ -182,8 +182,12 @@ def wiifind(messy,bessy, tkw):
                     yu = int(y)
                     if REVES:
                         yu = yt-yu
+                    
 #                    if not REVES :
                     xu = int(xt - x)
+                    if XBACON:
+                        xu=1024-xu
+                    
                     if wii.state['buttons'] & 4 :
                         if palha :
                             yk = yu - ( PAL[1] - 267 )
@@ -314,7 +318,7 @@ things=[]
 c = Tkinter.Canvas(top, bg="black",highlightthickness=0, height=yt, width=xt)
 
 def apag(eve):
-    global REVES, top
+    global REVES, top, XBACON
     if eve.char == 'r' or eve.char == 'R': # R apaga a tela
         c.delete('all')
         c.create_rectangle(0, 0, xt, yt, width=0, fill='black')
@@ -338,6 +342,9 @@ def apag(eve):
     if eve.char == 'a' or eve.char == 'A':
         barulho.toca(put)
         REVES = not REVES   
+    if eve.char == 'x' or eve.char == 'X':
+        barulho.toca(put)
+        XBACON = not XBACON
     if eve.char == 'q' or eve.char == 'Q':
         top.quit()
         exit()
